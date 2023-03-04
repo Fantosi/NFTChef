@@ -33,16 +33,16 @@ export class TelegramService {
     switch (command) {
       case START_COMMAND:
         this.bot.sendMessage(
-          this.userId,
+          msg.chat.id,
           'Hi I am catinthebox chatbot\n/echo : reply with same text',
         );
         break;
       case ECHO_COMMAND:
         const content = getContentFromCommand(text);
-        this.bot.sendMessage(this.userId, content);
+        this.bot.sendMessage(msg.chat.id, content);
         break;
       default:
-        this.bot.sendMessage(this.userId, 'this is not a command');
+        this.bot.sendMessage(msg.chat.id, 'this is not a command');
     }
   };
 
