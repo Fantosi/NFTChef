@@ -9,7 +9,7 @@ import { ECHO_COMMAND, START_COMMAND } from './telegram.constants';
 
 @Injectable()
 export class TelegramService {
-  private readonly bot: any;
+  private readonly bot: TelegramBot;
   // private readonly bot:TelegramBot // works after installing types
   private logger = new Logger(TelegramService.name);
   private userId = process.env.USER_ID;
