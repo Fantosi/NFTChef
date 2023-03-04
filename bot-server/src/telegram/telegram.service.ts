@@ -1,5 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as TelegramBot from 'node-telegram-bot-api'; // works after installing types
+import {
+  getCommand,
+  getContentFromCommand,
+  isCommand,
+} from 'src/util/parseText';
+import { ECHO_COMMAND, START_COMMAND } from './telegram.constants';
 
 @Injectable()
 export class TelegramService {
@@ -21,15 +27,22 @@ export class TelegramService {
 
   onReceiveMessage = (msg: TelegramBot.Message) => {
     this.logger.debug(msg);
-    console.log('### ', msg);
     const text = msg.text;
+    const command = getCommand(text);
 
-    if (text.includes('/echo')) {
-      const echoMsg = text.split(' ').slice(1).join(' ');
-      console.log('echoMsg : ', echoMsg);
-      this.bot.sendMessage(this.userId, echoMsg);
-    } else {
-      this.bot.sendMessage(this.userId, "Hi I'm cat in the box chatbot");
+    switch (command) {
+      case START_COMMAND:
+        this.bot.sendMessage(
+          this.userId,
+          'Hi I am catinthebox chatbot\n/echo : reply with same text',
+        );
+        break;
+      case ECHO_COMMAND:
+        const content = getContentFromCommand(text);
+        this.bot.sendMessage(this.userId, content);
+        break;
+      default:
+        this.bot.sendMessage(this.userId, 'this is not a command');
     }
   };
 
