@@ -12,14 +12,10 @@ export class TelegramService {
   private readonly bot: any;
   // private readonly bot:TelegramBot // works after installing types
   private logger = new Logger(TelegramService.name);
-  private userId = '5239333551';
+  private userId = process.env.USER_ID;
 
   constructor() {
-    this.bot = new TelegramBot(
-      '6284154928:AAGH9Et303317lf2f5EcB4NJHKnvmC9qbFY',
-      { polling: true },
-    );
-
+    this.bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
     this.bot.on('message', this.onReceiveMessage);
 
     this.sendMessageToUser(this.userId, `Server started at ${new Date()}`);
