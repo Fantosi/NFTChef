@@ -1,19 +1,49 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { HttpApi, fromNano, toNano } from 'ton';
-import { LinkRes, TransactionDto, VerifyRes } from './dtos/ton.dto';
+import {
+  GetAllNFTDto,
+  GetAllNFTRes,
+  LinkRes,
+  TransactionDto,
+  VerifyRes,
+} from './dtos/ton.dto';
+import { TonClient } from '@eversdk/core';
+import { libNode } from '@eversdk/lib-node';
+import { getTONEndpoint, isNFTAccount } from './utils/utils';
 
 @Injectable()
 export class TonService {
   constructor(private readonly httpService: HttpService) {}
 
-  async verifyTransaction(req: TransactionDto): Promise<VerifyRes> {
-    const endpoint =
-      process.env.NETWORK === 'mainnet'
-        ? 'https://toncenter.com/api/v2/jsonRPC'
-        : 'https://testnet.toncenter.com/api/v2/jsonRPC';
+  async getAllNFT(req: GetAllNFTDto): Promise<GetAllNFTRes> {
+    TonClient.useBinaryLibrary(libNode);
+    const client = new TonClient({
+      network: { endpoints: [getTONEndpoint()] },
+    });
 
-    const httpClient = new HttpApi(endpoint, {
+    // const accounts = await client.net.query_collection({
+    //   collection: 'accounts',
+    //   // filter: { id: { eq: req.userAddress } },
+    //   result: 'balance',
+    // });
+
+    // Filter NFT accounts owned by user
+    let nftAddresses: string[];
+
+    /* mocking code */
+    nftAddresses = ['EQAFLucjRjYqDhdRs4NmjO9M7uTgq4OBlDjSRU1eRX7UanCz'];
+    // for (const nftAddress of accounts.result) {
+    //   if (await isNFTAccount(client, nftAddress, req.userAddress.toString())) {
+    //     nftAddresses.push(nftAddress);
+    //   }
+    // }
+
+    return { nftAddresses };
+  }
+
+  async verifyTransaction(req: TransactionDto): Promise<VerifyRes> {
+    const httpClient = new HttpApi(getTONEndpoint(), {
       apiKey: process.env.TONCENTER_TOKEN,
     });
 

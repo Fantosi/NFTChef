@@ -20,11 +20,15 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@eversdk/core": "^1.41.1",
+    "@eversdk/lib-node": "^1.41.1",
+    "@eversdk/lib-web": "^1.41.1",
     "@grammyjs/conversations": "^1.1.1",
     "@nestjs/axios": "^2.0.0",
     "@nestjs/common": "^9.0.0",
     "@nestjs/core": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
+    "@tonclient/core": "^1.30.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "dotenv": "^16.0.3",

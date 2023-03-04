@@ -15,10 +15,20 @@ export class TransactionReq {
   comment: string;
 }
 
+export class GetAllNFTReq {
+  @IsString()
+  @IsNotEmpty()
+  userAddress: Address;
+}
+
 export class TransactionDto {
   address: Address;
   amount: number;
   comment: string;
+}
+
+export class GetAllNFTDto {
+  userAddress: Address;
 }
 
 export class VerifyRes {
@@ -27,4 +37,8 @@ export class VerifyRes {
 
 export class LinkRes {
   links: string[];
+}
+
+export class GetAllNFTRes {
+  nftAddresses: string[];
 }
