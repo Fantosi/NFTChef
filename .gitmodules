@@ -1,0 +1,3 @@
+[submodule "ai-server/ton-hackerton-nft-ai-sticker-server"]
+	path = ai-server/ton-hackerton-nft-ai-sticker-server
+	url = git@github.com:jewerlykim/ton-hackerton-nft-ai-sticker-server.git
