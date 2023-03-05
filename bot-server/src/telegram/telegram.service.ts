@@ -1,13 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
+import axios from 'axios';
 import * as TelegramBot from 'node-telegram-bot-api'; // works after installing types
+import * as path from 'path';
 import { getCommand, getContentFromCommand } from 'src/util/parseText';
 import {
+  ADD_STICKER_TO_SET_COMMAND,
   CREATE_STICKER_COMMAND,
   ECHO_COMMAND,
+  GENERATE_STICKERS_COMMAND,
   SEND_DOCUMENT_COMMAND,
   SEND_PHOTO_COMMAND,
   START_COMMAND,
 } from './telegram.constants';
+import * as fs from 'fs';
 
 @Injectable()
 export class TelegramService {
@@ -24,6 +29,27 @@ export class TelegramService {
     this.sendMessageToUser(this.userId, `Server started at ${new Date()}`);
   }
 
+  private generateStickers = async () => {
+    const formData = new FormData();
+    const fileBuffer = fs.readFileSync(path.resolve('./src/assets/raw.png'));
+    const blob = new Blob([fileBuffer], { type: 'image/png' });
+    formData.append('image', blob);
+    formData.append('project_name', 'youseop_test');
+
+    try {
+      const res = await axios.post(
+        'https://rocky-atoll-41977.herokuapp.com/batch_predict_test',
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data', charset: 'utf-8' },
+        },
+      );
+      console.log('batch_predict_test res: ', res);
+    } catch (e) {
+      this.logger.error('ERROR IN [generateStickers] : ', e);
+    }
+  };
+
   onReceiveMessage = async (msg: TelegramBot.Message) => {
     this.logger.debug(msg);
     const text = msg.text;
@@ -33,7 +59,7 @@ export class TelegramService {
       case START_COMMAND:
         this.bot.sendMessage(
           msg.chat.id,
-          'Hi I am catinthebox chatbot\n/echo : reply with same text\n/createsticker\n/sendphoto\n/senddocument',
+          'Hi I am catinthebox chatbot\n/echo : reply with same text\n/createsticker\n/sendphoto\n/senddocument\n/addstickertoset\n/generatestickers',
         );
         break;
       case ECHO_COMMAND:
@@ -50,6 +76,16 @@ export class TelegramService {
         );
         console.log('res: ', res);
         break;
+      case ADD_STICKER_TO_SET_COMMAND:
+        const resAddSticker = await this.bot.addStickerToSet(
+          msg.chat.id,
+          'test1_by_nftchef_bot',
+          'https://replicate.delivery/pbxt/h5QCoOtMG8aNNFKUKldey2WfLOf3oXsg7pFebAi89BGR5TSCB/out-0.png',
+          '2️⃣',
+        );
+        console.log(resAddSticker);
+        break;
+
       case SEND_PHOTO_COMMAND:
         const resPhoto = await this.bot.sendPhoto(
           msg.chat.id,
@@ -68,6 +104,11 @@ export class TelegramService {
         console.log('resDoc', resDoc);
         const docFileId = resDoc.document.thumb.file_id;
         this.bot.sendMessage(msg.chat.id, 'file_id is\n' + docFileId);
+        break;
+      case GENERATE_STICKERS_COMMAND:
+        this.generateStickers();
+        this.bot.sendMessage(msg.chat.id, 'sticker generated!');
+
         break;
       default:
         this.bot.sendMessage(msg.chat.id, 'this is not a command');

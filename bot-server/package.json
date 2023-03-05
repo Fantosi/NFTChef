@@ -33,6 +33,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "dotenv": "^16.0.3",
+    "fs": "^0.0.1-security",
     "grammy": "^1.14.1",
     "node-telegram-bot-api": "^0.61.0",
     "reflect-metadata": "^0.1.13",
