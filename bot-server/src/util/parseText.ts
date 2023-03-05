@@ -6,10 +6,12 @@ export const isCommand = (text: string, command: string) => {
   }
 };
 
-export const getCommand = (text: string) => {
-  const firstChunk = text.split(' ')[0];
-  if (firstChunk[0] === '/') {
-    return firstChunk.slice(1);
+export const getCommand = (text: string | undefined) => {
+  if (text) {
+    const firstChunk = text.split(' ')[0];
+    if (firstChunk[0] === '/') {
+      return firstChunk.slice(1);
+    }
   }
   return undefined;
 };
