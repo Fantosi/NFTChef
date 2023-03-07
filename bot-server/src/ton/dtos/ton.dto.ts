@@ -21,6 +21,12 @@ export class GetAllNFTReq {
   userAddress: Address;
 }
 
+export class ConfirmWalletSessionReq {
+  @IsString()
+  @IsNotEmpty()
+  sessionId: string;
+}
+
 export class TransactionDto {
   address: Address;
   amount: number;
@@ -29,6 +35,10 @@ export class TransactionDto {
 
 export class GetAllNFTDto {
   userAddress: Address;
+}
+
+export class ConfirmWalletSessionDto {
+  sessionId: string;
 }
 
 export class VerifyRes {
@@ -41,4 +51,14 @@ export class LinkRes {
 
 export class GetAllNFTRes {
   nftAddresses: string[];
+}
+
+export class CreateWalletSessionRes {
+  sessionId: string;
+  sessionSeed: string;
+  sessionLink: string;
+}
+
+export class ConfirmWalletSessionRes {
+  walletAddress: string;
 }

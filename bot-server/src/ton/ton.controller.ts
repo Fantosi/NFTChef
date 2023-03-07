@@ -2,6 +2,10 @@ import { Body, Controller, Get } from '@nestjs/common';
 import { TonService } from './ton.service';
 import { Address } from 'ton-core';
 import {
+  ConfirmWalletSessionDto,
+  ConfirmWalletSessionReq,
+  ConfirmWalletSessionRes,
+  CreateWalletSessionRes,
   GetAllNFTDto,
   GetAllNFTReq,
   GetAllNFTRes,
@@ -15,7 +19,20 @@ import {
 export class TonController {
   constructor(private readonly tonService: TonService) {}
 
-  @Get('Verify')
+  @Get('createSession')
+  async createWalletSession(): Promise<CreateWalletSessionRes> {
+    return this.tonService.createWalletSession();
+  }
+
+  @Get('confirmSession')
+  async confirmWalletSession(
+    @Body() req: ConfirmWalletSessionReq,
+  ): Promise<ConfirmWalletSessionRes> {
+    const reqDto = Object.assign(new ConfirmWalletSessionDto(), req);
+    return this.tonService.confirmWalletSession(reqDto);
+  }
+
+  @Get('verify')
   async verifyTransactionExistance(
     @Body() req: TransactionReq,
   ): Promise<VerifyRes> {
@@ -23,7 +40,7 @@ export class TonController {
     return this.tonService.verifyTransaction(reqDto);
   }
 
-  @Get('Link')
+  @Get('link')
   generatePayLink(@Body() req: TransactionReq): LinkRes {
     const reqDto = Object.assign(new TransactionDto(), req);
     return this.tonService.generatePayLink(reqDto);
