@@ -7,9 +7,11 @@ import {
   ADD_STICKER_TO_SET_COMMAND,
   CREATE_STICKER_COMMAND,
   ECHO_COMMAND,
-  GENERATE_STICKERS_COMMAND,
+  GENERATE_STICKER_SET_COMMAND,
+  NFTCHEF_LOGO_IMG,
   SEND_DOCUMENT_COMMAND,
   SEND_PHOTO_COMMAND,
+  SOURCE_IMG,
   START_COMMAND,
 } from './telegram.constants';
 import * as fs from 'fs';
@@ -29,7 +31,35 @@ export class TelegramService {
     this.sendMessageToUser(this.userId, `Server started at ${new Date()}`);
   }
 
-  private generateStickers = async () => {
+  private createNewStickerSet = async (
+    stickerName: string,
+    imgUrl: string,
+    chatId: string,
+  ) => {
+    const res = await this.bot.createNewStickerSet(
+      chatId,
+      stickerName + '_by_nftchef_bot',
+      stickerName + '_by_nftchef_bot',
+      imgUrl,
+      '👩🏻‍🍳',
+    );
+    return;
+  };
+
+  private addImgToStickerSet = async (
+    stickerName: string,
+    imgUrl: string,
+    chatId: string,
+  ) => {
+    await this.bot.addStickerToSet(
+      chatId,
+      stickerName + '_by_nftchef_bot',
+      imgUrl,
+      '👩🏻‍🍳',
+    );
+  };
+
+  private generateStickerSet = async (stickerName: string, chatId: string) => {
     const formData = new FormData();
     const fileBuffer = fs.readFileSync(path.resolve('./src/assets/raw.png'));
     const blob = new Blob([fileBuffer], { type: 'image/png' });
@@ -44,14 +74,37 @@ export class TelegramService {
           headers: { 'Content-Type': 'multipart/form-data', charset: 'utf-8' },
         },
       );
-      console.log('batch_predict_test res: ', res);
+      const generatedImgs = res.data;
+      if (generatedImgs.length > 0) {
+        await this.createNewStickerSet(stickerName, NFTCHEF_LOGO_IMG, chatId);
+        this.bot.sendMessage(
+          chatId,
+          'sticker set is successfully generated. We should add four more image to the sticker set. Please wait...\n [1/5]...',
+        );
+        await this.addImgToStickerSet(stickerName, SOURCE_IMG, chatId);
+        this.bot.sendMessage(chatId, '[2/5]...');
+        for (let i = 0; i < generatedImgs.length; i++) {
+          await this.addImgToStickerSet(stickerName, generatedImgs[i], chatId);
+          this.bot.sendMessage(chatId, `[${i + 3}/5]...`);
+        }
+        this.bot.sendMessage(
+          chatId,
+          `sticker generated!\nhttps://t.me/addstickers/${stickerName}_by_nftchef_bot`,
+        );
+      } else {
+        this.logger.error(
+          'ERROR IN [generateStickerSet] : ',
+          "there isn't any png link in the response",
+        );
+      }
     } catch (e) {
-      this.logger.error('ERROR IN [generateStickers] : ', e);
+      this.logger.error('ERROR IN [generateStickerSet] : ', e);
     }
   };
 
   onReceiveMessage = async (msg: TelegramBot.Message) => {
-    this.logger.debug(msg);
+    this.logger.debug('from: ', msg.from.id);
+    this.logger.debug('text: ', msg.text);
     const text = msg.text;
     const command = getCommand(text);
 
@@ -59,56 +112,24 @@ export class TelegramService {
       case START_COMMAND:
         this.bot.sendMessage(
           msg.chat.id,
-          'Hi I am catinthebox chatbot\n/echo : reply with same text\n/createsticker\n/sendphoto\n/senddocument\n/addstickertoset\n/generatestickers',
+          'Hi I am catinthebox chatbot\n/generatestickerset',
         );
         break;
-      case ECHO_COMMAND:
-        const content = getContentFromCommand(text);
-        this.bot.sendMessage(msg.chat.id, content);
-        break;
-      case CREATE_STICKER_COMMAND:
-        const res = await this.bot.createNewStickerSet(
-          msg.chat.id,
-          'test1_by_nftchef_bot',
-          'test1_by_nftchef_bot',
-          'https://replicate.delivery/pbxt/h5QCoOtMG8aNNFKUKldey2WfLOf3oXsg7pFebAi89BGR5TSCB/out-0.png',
-          '🌼',
-        );
-        console.log('res: ', res);
-        break;
-      case ADD_STICKER_TO_SET_COMMAND:
-        const resAddSticker = await this.bot.addStickerToSet(
-          msg.chat.id,
-          'test1_by_nftchef_bot',
-          'https://replicate.delivery/pbxt/h5QCoOtMG8aNNFKUKldey2WfLOf3oXsg7pFebAi89BGR5TSCB/out-0.png',
-          '2️⃣',
-        );
-        console.log(resAddSticker);
-        break;
-
-      case SEND_PHOTO_COMMAND:
-        const resPhoto = await this.bot.sendPhoto(
-          msg.chat.id,
-          'https://user-images.githubusercontent.com/66366941/222963251-fb7b3016-0d17-460e-895f-7309920418f2.png',
-        );
-        const photoFileId = resPhoto.photo[0].file_id;
-        console.log('fileId', photoFileId);
-        console.log('resPhoto', resPhoto);
-        this.bot.sendMessage(msg.chat.id, 'file_id is\n' + photoFileId);
-        break;
-      case SEND_DOCUMENT_COMMAND:
-        const resDoc = await this.bot.sendDocument(
-          msg.chat.id,
-          'https://user-images.githubusercontent.com/66366941/222963251-fb7b3016-0d17-460e-895f-7309920418f2.png',
-        );
-        console.log('resDoc', resDoc);
-        const docFileId = resDoc.document.thumb.file_id;
-        this.bot.sendMessage(msg.chat.id, 'file_id is\n' + docFileId);
-        break;
-      case GENERATE_STICKERS_COMMAND:
-        this.generateStickers();
-        this.bot.sendMessage(msg.chat.id, 'sticker generated!');
-
+      case GENERATE_STICKER_SET_COMMAND:
+        const stickerName = getContentFromCommand(text);
+        if (stickerName.length === 0) {
+          this.bot.sendMessage(
+            msg.chat.id,
+            'please put stickerName after command',
+          );
+        } else {
+          this.bot.sendMessage(
+            msg.chat.id,
+            'It will take sometime to generate sticker set, please wait.... \nThe name of the sticker is ' +
+              stickerName,
+          );
+          await this.generateStickerSet(stickerName, msg.chat.id);
+        }
         break;
       default:
         this.bot.sendMessage(msg.chat.id, 'this is not a command');
