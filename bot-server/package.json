@@ -39,7 +39,8 @@
     "telegram-bot-api": "^2.0.1",
     "ton": "^13.3.0",
     "ton-core": "^0.48.0",
-    "ton-crypto": "^3.2.0"
+    "ton-crypto": "^3.2.0",
+    "ton-x": "^2.1.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",

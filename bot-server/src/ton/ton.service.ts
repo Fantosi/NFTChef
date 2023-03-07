@@ -2,25 +2,85 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { HttpApi, fromNano, toNano } from 'ton';
 import {
+  ConfirmWalletSessionDto,
+  ConfirmWalletSessionRes,
+  CreateWalletSessionRes,
   GetAllNFTDto,
   GetAllNFTRes,
   LinkRes,
   TransactionDto,
   VerifyRes,
 } from './dtos/ton.dto';
-import { TonClient } from '@eversdk/core';
-import { libNode } from '@eversdk/lib-node';
+// import { TonClient } from '@eversdk/core';
+// import { libNode } from '@eversdk/lib-node';
+import {
+  TonhubConnector,
+  TonhubCreatedSession,
+  TonhubSessionAwaited,
+  TonhubSessionState,
+  TonhubWalletConfig,
+} from 'ton-x';
 import { getTONEndpoint, isNFTAccount } from './utils/utils';
 
 @Injectable()
 export class TonService {
   constructor(private readonly httpService: HttpService) {}
 
-  async getAllNFT(req: GetAllNFTDto): Promise<GetAllNFTRes> {
-    TonClient.useBinaryLibrary(libNode);
-    const client = new TonClient({
-      network: { endpoints: [getTONEndpoint()] },
+  async createWalletSession(): Promise<CreateWalletSessionRes> {
+    const connector = new TonhubConnector({ network: 'mainnet' }); //Set network "sandbox" for testnet
+    let session: TonhubCreatedSession = await connector.createNewSession({
+      name: 'NFTChef',
+      url: 'https://www.google.com/',
     });
+
+    // Session ID, Seed and Auth Link
+    const sessionId = session.id;
+    const sessionSeed = session.seed;
+    const sessionLink = session.link;
+
+    console.log(sessionId);
+    console.log(sessionLink);
+
+    return { sessionId, sessionSeed, sessionLink };
+  }
+
+  async confirmWalletSession(
+    req: ConfirmWalletSessionDto,
+  ): Promise<ConfirmWalletSessionRes> {
+    const connector = new TonhubConnector({ network: 'mainnet' }); //Set network "sandbox" for testnet
+    const sessionState: TonhubSessionState = await connector.getSessionState(
+      req.sessionId,
+    );
+    console.log(sessionState);
+    const session: TonhubSessionAwaited = await connector.awaitSessionReady(
+      req.sessionId,
+      5 * 60 * 1000,
+    ); // 5 min timeout
+
+    console.log('Link connected!');
+    console.log(session);
+
+    if (session.state === 'revoked' || session.state === 'expired') {
+      throw Error('BotServerError: Expired Link Error');
+    } else if (session.state === 'ready') {
+      // Handle session
+      const wallet: TonhubWalletConfig = session.wallet;
+      const correctConfig: boolean = TonhubConnector.verifyWalletConfig(
+        req.sessionId,
+        wallet,
+      );
+
+      if (correctConfig) return { walletAddress: wallet.address };
+    } else {
+      throw Error('BotServerError: Wallet Confirmation Error');
+    }
+  }
+
+  async getAllNFT(req: GetAllNFTDto): Promise<GetAllNFTRes> {
+    // TonClient.useBinaryLibrary(libNode);
+    // const client = new TonClient({
+    //   network: { endpoints: [getTONEndpoint()] },
+    // });
 
     // const accounts = await client.net.query_collection({
     //   collection: 'accounts',
