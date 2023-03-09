@@ -92,7 +92,7 @@ export class TelegramService {
 
     formData.append('image', blob);
     formData.append('project_name', 'youseop_test');
-    formData.append('emotion_type', EMOTION_JOY);
+    formData.append('emotion_type', emotion);
 
     try {
       console.log('send post request to diffusion model api');
