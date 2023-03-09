@@ -1,12 +1,6 @@
 export const TEST_USER_ID = process.env.TEST_CHAT_ID;
 
 export const START_COMMAND = 'start';
-export const ECHO_COMMAND = 'echo';
-export const CREATE_STICKER_COMMAND = 'createsticker';
-export const SEND_PHOTO_COMMAND = 'sendphoto';
-export const SEND_DOCUMENT_COMMAND = 'senddocument';
-export const ADD_STICKER_TO_SET_COMMAND = 'addstickertoset';
-export const GENERATE_STICKER_SET_COMMAND = 'generatestickerset';
 export const CONNECT_ACCOUNT = 'connectwallet';
 export const VERIFY_ACCOUNT = 'verifywallet';
 export const LISTUP_PROJECT = 'listupproject';
@@ -14,6 +8,12 @@ export const SELECT_PROJECT = 'selectproject';
 export const LISTUP_NFT = 'listupnft';
 export const SELECT_NFT = 'selectnft';
 export const CHECKOUT = 'checkout';
+export const GENERATE_STICKER_SET_COMMAND = 'generatestickerset';
+export const ECHO_COMMAND = 'echo';
+export const CREATE_STICKER_COMMAND = 'createsticker';
+export const SEND_PHOTO_COMMAND = 'sendphoto';
+export const SEND_DOCUMENT_COMMAND = 'senddocument';
+export const ADD_STICKER_TO_SET_COMMAND = 'addstickertoset';
 
 export const NFTCHEF_LOGO_IMG =
   'https://user-images.githubusercontent.com/66366941/223730963-752a1e42-4018-4ded-9238-e8d37162236f.png';

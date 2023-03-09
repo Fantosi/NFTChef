@@ -127,11 +127,6 @@ export class TelegramService {
         console.log(`#${i + 1} generatedImgUrl: `, generatedImgUrl);
         await this.addImgToStickerSet(stickerName, generatedImgUrl, chatId);
       }
-
-      await this.sendMsg(
-        `sticker generated!\nhttps://t.me/addstickers/${stickerName}_by_testyouseop_bot`,
-        chatId,
-      );
     } catch (e) {
       this.logger.error('ERROR IN [generateStickerSet] : ', e);
     }
@@ -148,7 +143,7 @@ export class TelegramService {
       case START_COMMAND:
         this.bot.sendMessage(
           msg.chat.id,
-          'Hi I am catinthebox chatbot\nto generate stickers, you should connect your ton wallet first. /connectwallet',
+          'Wassup, This is Catinthebox bot, ser. You can generate NFT pegged stickers with me.\nFirst connect your Ton wallet.\n/connectwallet',
         );
         break;
       case CONNECT_ACCOUNT:
@@ -157,9 +152,8 @@ export class TelegramService {
         this.sessionIdOfWallet = sessionId;
         this.bot.sendMessage(
           msg.chat.id,
-          'Please connect your account. Click the link below\n' +
-            sessionLink +
-            '\nAfter wallet connection is completed, please send /verifywallet to verify your wallet',
+          'Copy that, click the link below to connect your account.\nWhen wallet connection is completed, send /verifywallet to literally verify your wallet!\n\n' +
+            sessionLink,
         );
         break;
       case VERIFY_ACCOUNT:
@@ -170,14 +164,14 @@ export class TelegramService {
           this.verifiedWalletAddress = res.walletAddress;
           this.bot.sendMessage(
             msg.chat.id,
-            `Congratulation! 👏👏👏\nWallet is successfully connected!\nAddress of the connected wallet is\n${this.verifiedWalletAddress}\n\nNow, put /listupproject command to choose NFT project.`,
+            `Fantastic! 🚀🚀🚀\nYour Wallet is successfully connected!\n*Wallet address : ${this.verifiedWalletAddress}\nNext, send me /listupproject and choose NFT collection.`,
           );
         }
         break;
       case LISTUP_PROJECT:
         this.bot.sendMessage(
           msg.chat.id,
-          `Here is the list of the projects in your wallet\n1. project1\n2. project2\n3. project3\n4. project4\n\nPut the command below to select project\n/selectproject <the number of project>`,
+          `Following is the list of the collections you have:\n1. [----]\n2. [----]\n3. [----]\nType /selectproject <the number of collection> if you have made up your mind!`,
         );
         break;
       case SELECT_PROJECT:
@@ -189,7 +183,7 @@ export class TelegramService {
         } else {
           this.bot.sendMessage(
             msg.chat.id,
-            `Great project#${content} is selected! 👍\n\nHere is the list of the NFT in the project${content}\n1. nft1\n2. nft2\n3. nft3\n4. nft4\n\nPut the command below to select nft\n/selectnft <the number of nft>`,
+            `Roger, collection#${content} is selected!\nFollowing is the list of the NFTs in the collection#${content}\n1. [----]\n2. [----]\n3. [----]\n\nPut /selectnft <the number of NFT> to confirm your choice and start generating sticker.`,
           );
         }
         break;
@@ -202,7 +196,7 @@ export class TelegramService {
         } else {
           this.bot.sendMessage(
             msg.chat.id,
-            `Great nft#${content} is selected! 👍\n\nDo you want to generate sticker set with this nft? You should checkout 20 USD to generate sticker set.\n\nTo proceed payment, please send the command below.\n/checkout`,
+            `Coool, NFT#${content} is selected! 😎\nAre you ready to start generating sicker set with NFT#${content}? 0.1 TON is all you need!\n\nTo proceed payment, please send the command below.\n/checkout`,
           );
         }
         break;
@@ -214,7 +208,7 @@ export class TelegramService {
         // })
         this.bot.sendMessage(
           msg.chat.id,
-          'Transaction is successfully completed!💪💪\n\nPut /generatestickerset <name of your sticker> command to generate sticker with your nft. 🥰',
+          `Transaction is successfully completed!\nLet’s do this. 🔥\nSend /generatestickerset <name of your sticker> command to generate NFT sticker!`,
         );
         break;
       case GENERATE_STICKER_SET_COMMAND:
@@ -227,8 +221,7 @@ export class TelegramService {
         } else {
           this.bot.sendMessage(
             msg.chat.id,
-            'It will take sometime to generate sticker set, please wait.... \nThe name of the sticker is ' +
-              stickerName,
+            `The name of sticker is ${stickerName}.\nThank you for your patience in advance, ser !\nHave a break and come back in 5min. ☕️ `,
           );
           await this.generateStickerSet(stickerName, msg.chat.id);
         }
@@ -237,6 +230,11 @@ export class TelegramService {
         const test = await this.generateStickerImg(EMOTION_JOY);
         console.log('created! ', test);
         this.bot.sendMessage(msg.chat.id, 'generated! ' + test);
+
+        await this.sendMsg(
+          `Your sticker is out now! 👩🏻‍🍼👩🏻‍🍼👩🏻‍🍼 \nClick the link below to use your sticker.\n\nEnjoy your time with your babies. 👶🏻❣️\n\nhttps://t.me/addstickers/${stickerName}_by_testyouseop_bot`,
+          msg.chat.id,
+        );
         break;
       default:
         this.bot.sendMessage(msg.chat.id, 'this is not a command');
