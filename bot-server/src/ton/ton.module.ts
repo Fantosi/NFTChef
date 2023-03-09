@@ -7,5 +7,6 @@ import { TonController } from './ton.controller';
   providers: [TonService],
   imports: [HttpModule],
   controllers: [TonController],
+  exports: [TonService],
 })
 export class TonModule {}
