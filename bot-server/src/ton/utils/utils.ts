@@ -31,3 +31,8 @@ export const isNFTAccount = async (
   const parts = nftAddress.split(':');
   return parts[0] === '-1' && parts[1].startsWith(userAddress.substr(2));
 };
+
+export const sleep = (time: number) => {
+  const wakeUpTime = Date.now() + time * 1000;
+  while (Date.now() < wakeUpTime) {}
+};
