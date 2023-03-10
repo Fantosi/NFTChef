@@ -9,10 +9,9 @@ import {
   GetAllNFTDto,
   GetAllNFTReq,
   GetAllNFTRes,
-  LinkRes,
-  TransactionDto,
-  TransactionReq,
-  VerifyRes,
+  PaymentWalletSessionDto,
+  PaymentWalletSessionReq,
+  PaymentWalletSessionRes,
 } from './dtos/ton.dto';
 
 @Controller('ton')
@@ -32,18 +31,12 @@ export class TonController {
     return this.tonService.confirmWalletSession(reqDto);
   }
 
-  @Get('verify')
-  async verifyTransactionExistance(
-    @Body() req: TransactionReq,
-  ): Promise<VerifyRes> {
-    const reqDto = Object.assign(new TransactionDto(), req);
-    return this.tonService.verifyTransaction(reqDto);
-  }
-
-  @Get('link')
-  generatePayLink(@Body() req: TransactionReq): LinkRes {
-    const reqDto = Object.assign(new TransactionDto(), req);
-    return this.tonService.generatePayLink(reqDto);
+  @Get('paymentSession')
+  async paymentWalletSession(
+    @Body() req: PaymentWalletSessionReq,
+  ): Promise<PaymentWalletSessionRes> {
+    const reqDto = Object.assign(new PaymentWalletSessionDto(), req);
+    return this.tonService.paymentWalletSession(reqDto);
   }
 
   @Get('allNFT')

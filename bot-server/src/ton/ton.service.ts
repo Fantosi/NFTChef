@@ -7,20 +7,19 @@ import {
   CreateWalletSessionRes,
   GetAllNFTDto,
   GetAllNFTRes,
-  LinkRes,
-  TransactionDto,
-  VerifyRes,
+  PaymentWalletSessionDto,
+  PaymentWalletSessionRes,
 } from './dtos/ton.dto';
-// import { TonClient } from '@eversdk/core';
-// import { libNode } from '@eversdk/lib-node';
 import {
   TonhubConnector,
   TonhubCreatedSession,
   TonhubSessionAwaited,
   TonhubSessionState,
+  TonhubTransactionRequest,
+  TonhubTransactionResponse,
   TonhubWalletConfig,
 } from 'ton-x';
-import { getTONEndpoint, isNFTAccount } from './utils/utils';
+import { getTONEndpoint } from './utils/utils';
 
 @Injectable()
 export class TonService {
@@ -33,15 +32,7 @@ export class TonService {
       url: 'https://www.google.com/',
     });
 
-    // Session ID, Seed and Auth Link
-    const sessionId = session.id;
-    const sessionSeed = session.seed;
-    const sessionLink = session.link;
-
-    console.log(sessionId);
-    console.log(sessionLink);
-
-    return { sessionId, sessionSeed, sessionLink };
+    return { session };
   }
 
   async confirmWalletSession(
@@ -49,15 +40,15 @@ export class TonService {
   ): Promise<ConfirmWalletSessionRes> {
     const connector = new TonhubConnector({ network: 'mainnet' }); //Set network "sandbox" for testnet
     const sessionState: TonhubSessionState = await connector.getSessionState(
-      req.sessionId,
+      req.session.id,
     );
     console.log(sessionState);
     const session: TonhubSessionAwaited = await connector.awaitSessionReady(
-      req.sessionId,
+      req.session.id,
       5 * 60 * 1000,
     ); // 5 min timeout
 
-    console.log('Link connected!');
+    console.log('Connected!');
     console.log(session);
 
     if (session.state === 'revoked' || session.state === 'expired') {
@@ -66,13 +57,40 @@ export class TonService {
       // Handle session
       const wallet: TonhubWalletConfig = session.wallet;
       const correctConfig: boolean = TonhubConnector.verifyWalletConfig(
-        req.sessionId,
+        req.session.id,
         wallet,
       );
 
-      if (correctConfig) return { walletAddress: wallet.address };
+      if (correctConfig) return { wallet };
     } else {
       throw Error('BotServerError: Wallet Confirmation Error');
+    }
+  }
+
+  async paymentWalletSession(
+    req: PaymentWalletSessionDto,
+  ): Promise<PaymentWalletSessionRes> {
+    const connector = new TonhubConnector({ network: 'mainnet' }); //Set network "sandbox" for testnet
+
+    // Request body
+    const request: TonhubTransactionRequest = {
+      seed: req.session.seed, // Session Seed
+      appPublicKey: req.wallet.appPublicKey, // Wallet's app public key
+      to: process.env.OWNER_WALLET, // Destination
+      value: '10000000', // Amount in nano-tons, 0.01 ton
+      timeout: 5 * 60 * 1000, // 5 minut timeout
+      text: 'Payment needed to buy your personalized emoji.', // Optional comment. If no payload specified - sends actual content, if payload is provided this text is used as UI-only hint
+    };
+
+    const response: TonhubTransactionResponse =
+      await connector.requestTransaction(request);
+
+    if (response.type === 'success') {
+      // Handle successful transaction
+      const externalMessage = response.response; // Signed body of external message that was sent to the network
+      return { status: response.type, message: externalMessage };
+    } else {
+      return { status: response.type };
     }
   }
 
@@ -100,52 +118,5 @@ export class TonService {
     // }
 
     return { nftAddresses };
-  }
-
-  async verifyTransaction(req: TransactionDto): Promise<VerifyRes> {
-    const httpClient = new HttpApi(getTONEndpoint(), {
-      apiKey: process.env.TONCENTER_TOKEN,
-    });
-
-    const transactions = await httpClient.getTransactions(req.address, {
-      limit: 100,
-    });
-
-    const incomingTransactions = transactions.filter(
-      (tx) => Object.keys(tx.out_msgs).length === 0,
-    );
-
-    for (let i = 0; i < incomingTransactions.length; i++) {
-      const tx = incomingTransactions[i];
-      // Skip the transaction if there is no comment in it
-      if (!tx.in_msg.msg_data) {
-        continue;
-      }
-      console.log(tx);
-      // Convert transaction value from nano
-      const txValue = fromNano(tx.in_msg.value);
-      // Get transaction comment
-      let txComment: string;
-      //@ts-ignore
-      txComment = tx.in_msg.message;
-
-      console.log('TxComment: ', txComment);
-
-      if (txComment === req.comment && txValue === req.amount.toString()) {
-        return { isVerified: true };
-      }
-    }
-
-    return { isVerified: false };
-  }
-
-  generatePayLink(req: TransactionDto): LinkRes {
-    const tonHubLink = `https://tonhub.com/transfer/${
-      req.address
-    }?amount=${toNano(req.amount)}&text=${req.comment}`;
-    const tonKeeperLink = `https://app.tonkeeper.com/transfer/${
-      req.address
-    }?amount=${toNano(req.amount)}&text=${req.comment}`;
-    return { links: [tonHubLink, tonKeeperLink] };
   }
 }

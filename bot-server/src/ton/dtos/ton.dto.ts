@@ -1,19 +1,13 @@
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { Address } from 'ton-core';
+import { TonhubCreatedSession, TonhubWalletConfig } from 'ton-x';
 
-export class TransactionReq {
-  @IsString()
-  @IsNotEmpty()
-  address: Address;
-
-  @IsNumber()
-  @IsNotEmpty()
-  amount: number;
-
-  @IsString()
-  @IsNotEmpty()
-  comment: string;
-}
+type TransactionStatus =
+  | 'rejected'
+  | 'expired'
+  | 'invalid_session'
+  | 'success'
+  | 'unknown';
 
 export class GetAllNFTReq {
   @IsString()
@@ -22,15 +16,15 @@ export class GetAllNFTReq {
 }
 
 export class ConfirmWalletSessionReq {
-  @IsString()
   @IsNotEmpty()
-  sessionId: string;
+  session: TonhubCreatedSession;
 }
 
-export class TransactionDto {
-  address: Address;
-  amount: number;
-  comment: string;
+export class PaymentWalletSessionReq {
+  @IsNotEmpty()
+  session: TonhubCreatedSession;
+  @IsNotEmpty()
+  wallet: TonhubWalletConfig;
 }
 
 export class GetAllNFTDto {
@@ -38,15 +32,12 @@ export class GetAllNFTDto {
 }
 
 export class ConfirmWalletSessionDto {
-  sessionId: string;
+  session: TonhubCreatedSession;
 }
 
-export class VerifyRes {
-  isVerified: boolean;
-}
-
-export class LinkRes {
-  links: string[];
+export class PaymentWalletSessionDto {
+  session: TonhubCreatedSession;
+  wallet: TonhubWalletConfig;
 }
 
 export class GetAllNFTRes {
@@ -54,11 +45,14 @@ export class GetAllNFTRes {
 }
 
 export class CreateWalletSessionRes {
-  sessionId: string;
-  sessionSeed: string;
-  sessionLink: string;
+  session: TonhubCreatedSession;
 }
 
 export class ConfirmWalletSessionRes {
-  walletAddress: string;
+  wallet: TonhubWalletConfig;
+}
+
+export class PaymentWalletSessionRes {
+  status: TransactionStatus;
+  message?: string;
 }
