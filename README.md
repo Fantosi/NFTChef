@@ -14,7 +14,11 @@ https://nftchef.framer.website
 
 ### contact
 If you have any questions or comments about NFTChef, please feel free to reach out to us via email or Twitter.
+
+
 [![Gmail Logo](https://img.icons8.com/fluent/48/000000/gmail-new.png)](mailto:catinthebox2022@gmail.com)
+
+
 twitter : @catinthebox2022
 
 ### License
@@ -22,6 +26,8 @@ NFTChef is released under the MIT License. See LICENSE for more information.
 
 
 
+
+### Team
 NFTChef is developed by Cat in the box 🐱➡️📦
 ![catinthebox](https://user-images.githubusercontent.com/75651834/224489261-ac070d98-65d4-4f72-963d-d0a2be6d74c5.png)
 
