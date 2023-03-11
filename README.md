@@ -17,7 +17,6 @@ If you have any questions or comments about NFTChef, please feel free to reach o
 
 
 [![Gmail Logo](https://img.icons8.com/fluent/48/000000/gmail-new.png)](mailto:catinthebox2022@gmail.com)
-
 [![Twitter Logo](https://img.icons8.com/fluent/48/000000/twitter.png)](https://twitter.com/catinthebox2022)
 
 
