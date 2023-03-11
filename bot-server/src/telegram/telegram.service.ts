@@ -51,8 +51,8 @@ export class TelegramService {
     sleep(50);
     const res = await this.bot.createNewStickerSet(
       chatId,
-      stickerName + '_by_testyouseop_bot',
-      stickerName + '_by_testyouseop_bot',
+      stickerName + '_by_nftchef_bot',
+      stickerName + '_by_nftchef_bot',
       imgUrl,
       '👩🏻‍🍳',
     );
@@ -69,7 +69,7 @@ export class TelegramService {
         console.log('addImgToStickerSet function start');
         this.bot.addStickerToSet(
           chatId,
-          stickerName + '_by_testyouseop_bot',
+          stickerName + '_by_nftchef_bot',
           imgUrl,
           '👩🏻‍🍳',
         );
@@ -165,14 +165,14 @@ export class TelegramService {
           this.verifiedWallet = res.wallet;
           this.bot.sendMessage(
             msg.chat.id,
-            `Fantastic! 🚀🚀🚀\nYour Wallet is successfully connected!\n*Wallet address : ${this.verifiedWallet.address}\nNext, send me /listupproject and choose NFT collection.`,
+            `Fantastic! 🚀🚀🚀\nYour Wallet is successfully connected!\n*Wallet address : ${this.verifiedWallet.address}\n\nNext, send me /listupproject and choose NFT collection.`,
           );
         }
         break;
       case LISTUP_PROJECT:
         this.bot.sendMessage(
           msg.chat.id,
-          `Following is the list of the collections you have:\n1. [----]\n2. [----]\n3. [----]\nType /selectproject <the number of collection> if you have made up your mind!`,
+          `Following is the list of the collections you have:\n1. joy-tonx\n2. sad-tonx\n3. surprise-tonx\n\nType /selectproject <the number of collection> if you have made up your mind!`,
         );
         break;
       case SELECT_PROJECT:
@@ -210,12 +210,12 @@ export class TelegramService {
         if (checkoutResult.status === 'success') {
           this.bot.sendMessage(
             msg.chat.id,
-            `Transaction is successfully completed!\nLet’s do this. 🔥\nSend /generatestickerset <name of your sticker> command to generate NFT sticker!`,
+            `Transaction is successfully completed!\nLet’s do this. 🔥\n\nSend /generatestickerset <name of your sticker> command to generate NFT sticker!`,
           );
         } else {
           this.bot.sendMessage(
             msg.chat.id,
-            `Transaction is rejected. Please make your account balance enough and try again.`,
+            `Transaction is rejected. Please make your account balance enough and try again.\n\n/checkout`,
           );
         }
         break;
@@ -234,7 +234,7 @@ export class TelegramService {
           await this.generateStickerSet(stickerName, msg.chat.id);
 
           await this.sendMsg(
-            `Your sticker is out now! 👩🏻‍🍼👩🏻‍🍼👩🏻‍🍼 \nClick the link below to use your sticker.\n\nEnjoy your time with your babies. 👶🏻❣️\n\nhttps://t.me/addstickers/${stickerName}_by_testyouseop_bot`,
+            `Your sticker is out now! 👩🏻‍🍼👩🏻‍🍼👩🏻‍🍼 \nClick the link below to use your sticker.\n\nEnjoy your time with your babies. 👶🏻❣️\n\nhttps://t.me/addstickers/${stickerName}_by_nftchef_bot`,
             msg.chat.id,
           );
         }
@@ -245,7 +245,7 @@ export class TelegramService {
         this.bot.sendMessage(msg.chat.id, 'generated! ' + test);
 
         await this.sendMsg(
-          `Your sticker is out now! 👩🏻‍🍼👩🏻‍🍼👩🏻‍🍼 \nClick the link below to use your sticker.\n\nEnjoy your time with your babies. 👶🏻❣️\n\nhttps://t.me/addstickers/${'stickername'}_by_testyouseop_bot`,
+          `Your sticker is out now! 👩🏻‍🍼👩🏻‍🍼👩🏻‍🍼 \nClick the link below to use your sticker.\n\nEnjoy your time with your babies. 👶🏻❣️\n\nhttps://t.me/addstickers/${'stickername'}_by_nftchef_bot`,
           msg.chat.id,
         );
         break;
