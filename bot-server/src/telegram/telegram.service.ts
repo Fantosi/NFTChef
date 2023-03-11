@@ -23,6 +23,7 @@ import * as fs from 'fs';
 import { sleep } from 'src/ton/utils/utils';
 import { TonService } from 'src/ton/ton.service';
 import { Address } from 'ton-core';
+import { TonhubCreatedSession, TonhubWalletConfig } from 'ton-x';
 
 @Injectable()
 export class TelegramService {
@@ -31,8 +32,8 @@ export class TelegramService {
   // private readonly bot:TelegramBot // works after installing types
   private logger = new Logger(TelegramService.name);
   private userId = process.env.USER_ID;
-  private sessionIdOfWallet: undefined | string = undefined;
-  private verifiedWalletAddress: undefined | string = undefined;
+  private sessionIdOfWallet: undefined | TonhubCreatedSession = undefined;
+  private verifiedWallet: undefined | TonhubWalletConfig = undefined;
 
   constructor(private readonly tonService: TonService) {
     this.bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
@@ -148,24 +149,23 @@ export class TelegramService {
         );
         break;
       case CONNECT_ACCOUNT:
-        const { sessionId, sessionLink, sessionSeed } =
-          await this.tonService.createWalletSession();
-        this.sessionIdOfWallet = sessionId;
+        const { session } = await this.tonService.createWalletSession();
+        this.sessionIdOfWallet = session;
         this.bot.sendMessage(
           msg.chat.id,
           'Copy that, click the link below to connect your account.\nWhen wallet connection is completed, send /verifywallet to literally verify your wallet!\n\n' +
-            sessionLink,
+            session.link,
         );
         break;
       case VERIFY_ACCOUNT:
         const res = await this.tonService.confirmWalletSession({
-          sessionId: this.sessionIdOfWallet,
+          session: this.sessionIdOfWallet,
         });
-        if (res.walletAddress) {
-          this.verifiedWalletAddress = res.walletAddress;
+        if (res.wallet) {
+          this.verifiedWallet = res.wallet;
           this.bot.sendMessage(
             msg.chat.id,
-            `Fantastic! 🚀🚀🚀\nYour Wallet is successfully connected!\n*Wallet address : ${this.verifiedWalletAddress}\nNext, send me /listupproject and choose NFT collection.`,
+            `Fantastic! 🚀🚀🚀\nYour Wallet is successfully connected!\n*Wallet address : ${this.verifiedWallet.address}\nNext, send me /listupproject and choose NFT collection.`,
           );
         }
         break;
@@ -202,15 +202,22 @@ export class TelegramService {
         }
         break;
       case CHECKOUT:
-        // this.tonService.verifyTransaction({
-        //   address: new Address(this.verifiedWalletAddress),
-        //   amount:0.01,
-        //   comment:
-        // })
-        this.bot.sendMessage(
-          msg.chat.id,
-          `Transaction is successfully completed!\nLet’s do this. 🔥\nSend /generatestickerset <name of your sticker> command to generate NFT sticker!`,
-        );
+        const checkoutResult = await this.tonService.paymentWalletSession({
+          session: this.sessionIdOfWallet,
+          wallet: this.verifiedWallet,
+        });
+        console.log('checkoutResult: ', checkoutResult);
+        if (checkoutResult.status === 'success') {
+          this.bot.sendMessage(
+            msg.chat.id,
+            `Transaction is successfully completed!\nLet’s do this. 🔥\nSend /generatestickerset <name of your sticker> command to generate NFT sticker!`,
+          );
+        } else {
+          this.bot.sendMessage(
+            msg.chat.id,
+            `Transaction is rejected. Please make your account balance enough and try again.`,
+          );
+        }
         break;
       case GENERATE_STICKER_SET_COMMAND:
         const stickerName = getContentFromCommand(text);
