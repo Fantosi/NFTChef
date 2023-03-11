@@ -17,6 +17,7 @@ import {
   START_COMMAND,
   VERIFY_ACCOUNT,
   CHECKOUT,
+  ADD_STICKER_TO_SET_COMMAND,
 } from './telegram.constants';
 import * as fs from 'fs';
 import { sleep } from 'src/ton/utils/utils';
@@ -224,6 +225,11 @@ export class TelegramService {
             `The name of sticker is ${stickerName}.\nThank you for your patience in advance, ser !\nHave a break and come back in 5min. ☕️ `,
           );
           await this.generateStickerSet(stickerName, msg.chat.id);
+
+          await this.sendMsg(
+            `Your sticker is out now! 👩🏻‍🍼👩🏻‍🍼👩🏻‍🍼 \nClick the link below to use your sticker.\n\nEnjoy your time with your babies. 👶🏻❣️\n\nhttps://t.me/addstickers/${stickerName}_by_testyouseop_bot`,
+            msg.chat.id,
+          );
         }
         break;
       case CREATE_STICKER_COMMAND:
@@ -232,7 +238,16 @@ export class TelegramService {
         this.bot.sendMessage(msg.chat.id, 'generated! ' + test);
 
         await this.sendMsg(
-          `Your sticker is out now! 👩🏻‍🍼👩🏻‍🍼👩🏻‍🍼 \nClick the link below to use your sticker.\n\nEnjoy your time with your babies. 👶🏻❣️\n\nhttps://t.me/addstickers/${stickerName}_by_testyouseop_bot`,
+          `Your sticker is out now! 👩🏻‍🍼👩🏻‍🍼👩🏻‍🍼 \nClick the link below to use your sticker.\n\nEnjoy your time with your babies. 👶🏻❣️\n\nhttps://t.me/addstickers/${'stickername'}_by_testyouseop_bot`,
+          msg.chat.id,
+        );
+        break;
+      case ADD_STICKER_TO_SET_COMMAND:
+        const originalStickerName = getContentFromCommand(text);
+
+        this.addImgToStickerSet(
+          originalStickerName,
+          'https://replicate.delivery/pbxt/gle2RaNj4TS0DK0g9tVmRS83C9wi6feoJF1UMp9odqDxzOMhA/out-0.png',
           msg.chat.id,
         );
         break;
