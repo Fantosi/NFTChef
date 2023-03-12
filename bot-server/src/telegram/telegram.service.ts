@@ -47,7 +47,6 @@ export class TelegramService {
     imgUrl: string,
     chatId: string,
   ) => {
-    console.log('createNewStickerSet function start');
     sleep(50);
     const res = await this.bot.createNewStickerSet(
       chatId,
@@ -66,14 +65,12 @@ export class TelegramService {
   ): Promise<void> =>
     new Promise((resolve, reject) => {
       setTimeout(() => {
-        console.log('addImgToStickerSet function start');
         this.bot.addStickerToSet(
           chatId,
           stickerName + '_by_nftchef_bot',
           imgUrl,
           '👩🏻‍🍳',
         );
-        console.log('addImgToStickerSet function end');
 
         resolve();
       }, 50000);
@@ -97,7 +94,6 @@ export class TelegramService {
     formData.append('emotion_type', emotion);
 
     try {
-      console.log('send post request to diffusion model api');
       const res = await axios.post(
         'https://rocky-atoll-41977.herokuapp.com/batch_predict',
         formData,
@@ -126,7 +122,6 @@ export class TelegramService {
         console.log(`start to generate #${i + 1} img`);
         sleep(50);
         const generatedImgUrl = await this.generateStickerImg(EMOTIONS[i]);
-        console.log(`#${i + 1} generatedImgUrl: `, generatedImgUrl);
         await this.addImgToStickerSet(stickerName, generatedImgUrl, chatId);
       }
     } catch (e) {
@@ -206,7 +201,6 @@ export class TelegramService {
           session: this.sessionIdOfWallet,
           wallet: this.verifiedWallet,
         });
-        console.log('checkoutResult: ', checkoutResult);
         if (checkoutResult.status === 'success') {
           this.bot.sendMessage(
             msg.chat.id,
@@ -241,7 +235,6 @@ export class TelegramService {
         break;
       case CREATE_STICKER_COMMAND:
         const test = await this.generateStickerImg(EMOTION_JOY);
-        console.log('created! ', test);
         this.bot.sendMessage(msg.chat.id, 'generated! ' + test);
 
         await this.sendMsg(
